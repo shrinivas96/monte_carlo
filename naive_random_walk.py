@@ -1,5 +1,5 @@
 """
-From Socrates YouTube tutorial on monte carlo and random walk:
+From Socratica YouTube tutorial on monte carlo and random walk:
 The question is: What is the maximum number of walks you can take
 so that the final distance from the start is 4 or less. If its more 
 than 4 then you neeed a transport back home. 
