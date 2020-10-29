@@ -53,7 +53,7 @@ def main():
         if max(track_money) > highest_win:
             highest_win = max(track_money)
 
-        difference_amnt = track_money[-1] - track_money[0]          # (money gambler took away) - (money they started at)
+        difference_amnt = track_money[0] - track_money[-1]          # (money they started at) - (money gambler took away) = house money
         house_money.append(difference_amnt)                         # difference_amnt is how much house won/lost
 
         plt.plot(track_money)                                       # plot the money change for each gambler
