@@ -1,23 +1,11 @@
 import numpy as np
 import pandas as pd
-import scipy
-import scipy.stats as st
-import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-# from mpl_toolkits.mplot3d import Axes3D
+from samples_and_measurements import *                  # just a file to put my extra functions away
+
 
 # Global contants for converting units
 deg2rad = np.pi / 180
 rad2deg = 180 / np.pi
-
-def uniform_samples(a = -1, b = 1, n = 100, d = 2):
-    """
-    Returns n d-dimensional samples that are uniformly distributed in the half \
-    open interval [a, b)
-    """
-    samples = (b - a) * np.random.random((n, d)) + a
-    return samples
-
 
 def state_likelihood(z_t, mean, cov):
     """
@@ -43,23 +31,6 @@ def state_likelihood(z_t, mean, cov):
     return likelihood
 
 
-def retreive_measurement():
-    input_df = pd.read_csv('kf_data_validation.csv')
-    df_len = len(input_df)
-
-    accX = np.array(input_df['AccX (m/s^2)'].tolist())      # converting into an array to \
-    accY = np.array(input_df['AccY (m/s^2)'].tolist())      # iterate over each element \
-    gyro = np.array(input_df['Gyro (deg/sec)'].tolist())    # to bring in form of measurement 'y'.
-
-    z_theta = np.arctan2(-accY, accX)                       # y_theta = -ay/ax. output in radians
-    z_dtheta = gyro * deg2rad                               # convert to rad/sec as input in deg/sec
-
-    # for i in range(df_len):
-    #     arr = np.array([y_theta[i], yw[i]])
-    #     print(arr)
-    return z_theta, z_dtheta
-
-
 def main():
     """
     Generates uniform samples to span the space of the states, 
@@ -68,7 +39,7 @@ def main():
     """
 
     T = 0.01                            # sampling time. new measuements at every T seconds
-    a, b = -0.5, 0.5                    # interval to generate uniform particles
+    a, b = -1.6, 0.8                    # interval to generate uniform particles
     n_samples = 100                     # number of samples
     dim = 3                             # vector dimension for 3 states to be estimated
     np.random.seed(0)
@@ -115,7 +86,7 @@ def main():
         # obs_noise = np.random.multivariate_normal(exp_zt, Rd)           # adding measurement noise ~ N(Cxt, Rd)
         weight_xn_t1 = state_likelihood(z_t, exp_zt, Rd)
 
-        print("Obs: {0} \t\tExp: {1} \t\tProb.: {2}".format(z_t, exp_zt, weight_xn_t1))
+        print("Real Obs: {0} \t\tExp. Obs: {1} \t\tProb.: {2}".format(z_t, exp_zt, weight_xn_t1))
 
         particle_set_t.append([xn_t1, weight_xn_t1])
     
