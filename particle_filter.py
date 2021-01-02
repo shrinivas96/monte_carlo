@@ -5,7 +5,7 @@ import samples_and_measurements as sm
 # Global contants for needed throughout
 deg2rad = np.pi / 180
 rad2deg = 180 / np.pi
-T = 0.01                                        # sampling time. new measuements at every T seconds
+T = 0.01                                                # sampling time. new measuements at every T seconds
 I = np.identity(3)
 zero_mean = np.array([0.0, 0.0, 0.0])                   # to construct any N(0, Cov) 
 
