@@ -1,0 +1,4 @@
+jupyter/*
+__pycache__/*
+untracked/*
+*.txt
