@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import resampling_fork as rf
 import matplotlib.pyplot as plt
 from filterpy import monte_carlo                        # for resampling 
 import samples_and_measurements as sm                   # custom script to load data from the csv
@@ -12,6 +13,7 @@ T = 0.01                                                # sampling time. new mea
 I = np.identity(3)                                      # identity matrix
 zero_mean = np.array([0.0, 0.0, 0.0])                   # to construct any N(0, Cov) and draw samples from it 
 np.random.seed(0)                                       # ensures we get the same random results each time
+count = 0
 
 
 def state_likelihood(measurement_t, state_t):
@@ -90,7 +92,7 @@ def particle_filter(particle_set_t, measurement_t):
 
     Returns: particle_set_t1: Array of vectors estimated to be the state in next time step
     """
-
+    global count
     n_samples, dim = particle_set_t.shape           # the number of particles and dimension of each particle
 
     weights = []
@@ -110,14 +112,21 @@ def particle_filter(particle_set_t, measurement_t):
         weights.append(weight_xn_t1)
 
         # print("Obs: {0} \t\tExp: {1} \t\tProb.: {2}".format(z_t, mean, weight_xn_t1))
-    
+
     weights = np.array(weights)
+    
+    if count == 2:
+        np.save("array_49", weights)
+    if count == 50:
+        np.save("array_50", weights)
+    
     weights = weights/np.sum(weights)
     pred_state = np.array(pred_state)
 
     # the resampling step:
     # indices = monte_carlo.residual_resample(weights)
-    indices = monte_carlo.stratified_resample(weights)
+    indices = rf.stratified_resample(weights)
+    count += 1
 
     for index in indices:
         est_state_set.append(pred_state[index])
@@ -138,17 +147,55 @@ and pass it just the particle set and enw measurement step in that time step.
 # TODO: 2. Make weight and state matrices and then edit them only rather than appending to a new one.
 
 
-if __name__ == "__main__":
+def particle_animator(data, scat):
+    a, b = data
+    scat.set_offsets()
+
+    # create the figure to plot the data to
+
+    fig, ax = plt.subplots()
+    ax.set(xlim=(-3, 6), ylim=(-3, 8))
+    scat = ax.scatter(np.linspace(0, 1, 10), np.linspace(2, 3, 10), s=6)
+    ani = FuncAnimation(fig=fig, 
+                        func=scatter_animator, 
+                        frames=generator, 
+                        fargs=(ax, scat), 
+                        interval=1000)
+
+    plt.show()
+
+
+def main():
     a, b = -3, 3                                                # interval to generate uniform particles
     n_samples = 5000                                           # number of samples
     dim = 3                                                         # vector dimension for 3 states to be estimated
     particle_set = sm.uniform_samples(a, b, n_samples, dim)         # initialising particles to span the limits of state
 
     # Actual data taken from the csv
-    z_theta, z_dtheta = sm.retreive_data(0)                     # unit rad, rad/sec
-    theta_true, dtheta_true = sm.retreive_data(1)               # unit rad, rad/sec
+    z_theta, z_dtheta = sm.retreive_data(0)                     # measurements; unit rad, rad/sec
+    theta_true, dtheta_true = sm.retreive_data(1)               # validation;   unit rad, rad/sec
     time = len(z_theta)                                         # total number of measurements that we have
+
+    max_t, min_t = 0, 0
+    max_d, min_d = 0, 0
 
     for t in range(time):
         z_t = np.array([z_theta[t], z_dtheta[t]])
         particle_set = particle_filter(particle_set, z_t)
+        theta_est = particle_set[:, 1]
+        dtheta_est = particle_set[:, 0]
+        if np.amax(theta_est) > max_t:
+            max_t = np.amax(theta_est)
+        if np.amax(dtheta_est) > max_d:
+            max_d = np.amax(dtheta_est)
+        if np.amin(theta_est) < min_t:
+            min_t = np.amin(theta_est)
+        if np.amin(dtheta_est) < min_d:
+            min_d = np.amin(dtheta_est)
+    
+    print(min_t, max_t)
+    print(min_d, max_d)
+
+
+if __name__ == "__main__":
+    main()
