@@ -2,3 +2,5 @@ jupyter/*
 __pycache__/*
 untracked/*
 *.txt
+sample.py
+*.npy

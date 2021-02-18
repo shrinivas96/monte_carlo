@@ -10,6 +10,8 @@ Also given in this offcial Matplotlib example: https://matplotlib.org/examples/a
 
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use('tkagg') 
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 

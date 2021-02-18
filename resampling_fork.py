@@ -106,8 +106,8 @@ def stratified_resample(weights):
     cumulative_sum = np.cumsum(weights)
     i, j = 0, 0
     while i < N:
-        if N - i < 5:
-            print("gere")
+        if N - i < 2:               # this is here only for debugging IndexError
+            pass
         if positions[i] < cumulative_sum[j]:
             indexes[i] = j
             i += 1
