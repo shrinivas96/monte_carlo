@@ -12,7 +12,7 @@ rad2deg = 180 / np.pi                                   # multiply to convert to
 T = 0.01                                                # sampling time. new measuements at every T seconds
 I = np.identity(3)                                      # identity matrix
 zero_mean = np.array([0.0, 0.0, 0.0])                   # to construct any N(0, Cov) and draw samples from it 
-np.random.seed(0)                                       # ensures we get the same random results each time
+# np.random.seed(0)                                       # ensures we get the same random results each time
 count = 0
 
 
@@ -90,61 +90,51 @@ def particle_filter(particle_set_t, measurement_t):
 
     measurement_t:  Array of the measurements [z_theta, z_dtheta]
 
-    Returns: particle_set_t1: Array of vectors estimated to be the state in next time step
+    Returns: 
+    particle_set_t1: Array of vectors estimated to be the state in next time step
     """
     global count
-    n_samples, dim = particle_set_t.shape           # the number of particles and dimension of each particle
+    n_samples, dim = particle_set_t.shape                           # no of particles and dimension of each particle
 
-    weights = []
-    pred_state = []
-    est_state_set = []
+    pred_state = np.zeros((n_samples, dim), dtype="float64")        # store the predicted state 
+    weights = np.zeros(n_samples, dtype="float64")                  # corresponding weights for resampling
 
-    
-    # this for-loop calculates \bar{X_t}, i.e. the predicted belief.
+    particle_set_t1 = np.zeros((n_samples, dim), dtype="float64")   # next iteration of particles
+
+
+    # this loop calculates \bar{X_t}, i.e. the predicted belief.
     for n in range(n_samples):
         # predicted motion step:
-        xn_t1 = sample_motion_model(particle_set_t[n])
+        xn_t1 = sample_motion_model(particle_set_t[n])              # 3x1 vector: hypothetical state
 
         # measurement correction step:
-        weight_xn_t1 = state_likelihood(measurement_t, xn_t1)
+        weight_xn_t1 = state_likelihood(measurement_t, xn_t1)       # scalar value
 
-        pred_state.append(xn_t1)
-        weights.append(weight_xn_t1)
+        pred_state[n] = xn_t1
+        weights[n] = weight_xn_t1
 
-        # print("Obs: {0} \t\tExp: {1} \t\tProb.: {2}".format(z_t, mean, weight_xn_t1))
-
-    weights = np.array(weights)
     
-    if count == 2:
-        np.save("array_49", weights)
-    if count == 50:
-        np.save("array_50", weights)
-    
-    weights = weights/np.sum(weights)
-    pred_state = np.array(pred_state)
+    # It was observed that if all weights are 0, the resampling step breaks. 
+    # Thus, adding a uniform distribution. This is obviously a very bad idea \ 
+    # as the true state can easily be discarded in the resampling step: TODO!
+    if np.sum(weights) > 0.0:
+        weights = weights/np.sum(weights)                       # normalize array only when sum in not 0
+    else:
+        print("possile divergence!")
+        weights[:] = 1 / n_samples                              # if sum is 0 then assign uniform distribution throughout
+
 
     # the resampling step:
     # indices = monte_carlo.residual_resample(weights)
-    indices = rf.stratified_resample(weights)
+    indices = monte_carlo.stratified_resample(weights)
     count += 1
+    print(count)
 
-    for index in indices:
-        est_state_set.append(pred_state[index])
+    # new particle set is particles at index locations
+    for i, index in enumerate(indices):
+        particle_set_t1[i] = pred_state[index]
 
-    particle_set_t1 = np.array(est_state_set)
-    
     return particle_set_t1
-
-
-"""
-for t in time will go in some main function and 
-in each time step we will call the particle filter algorithm 
-and pass it just the particle set and enw measurement step in that time step.
-"""
-
-
-# TODO: 1. Move weighting process before prediction to go ahead with first un-intialized particles
-# TODO: 2. Make weight and state matrices and then edit them only rather than appending to a new one.
 
 
 def particle_animator(data, scat):
@@ -157,8 +147,8 @@ def particle_animator(data, scat):
     ax.set(xlim=(-3, 6), ylim=(-3, 8))
     scat = ax.scatter(np.linspace(0, 1, 10), np.linspace(2, 3, 10), s=6)
     ani = FuncAnimation(fig=fig, 
-                        func=scatter_animator, 
-                        frames=generator, 
+                        func=particle_animator, 
+                        # frames=generator, 
                         fargs=(ax, scat), 
                         interval=1000)
 
@@ -167,7 +157,7 @@ def particle_animator(data, scat):
 
 def main():
     a, b = -3, 3                                                # interval to generate uniform particles
-    n_samples = 5000                                           # number of samples
+    n_samples = 10000                                           # number of samples
     dim = 3                                                         # vector dimension for 3 states to be estimated
     particle_set = sm.uniform_samples(a, b, n_samples, dim)         # initialising particles to span the limits of state
 
@@ -198,4 +188,6 @@ def main():
 
 
 if __name__ == "__main__":
+    # TODO: 1. Move weighting process before prediction to go ahead with first un-intialized particles
+    # TODO: 2. Make weight and state matrices and then edit them only rather than appending to a new one.
     main()
