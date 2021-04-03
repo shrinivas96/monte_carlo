@@ -4,3 +4,6 @@ untracked/*
 *.txt
 sample.py
 *.npy
+particle_dataset/
+.vscode/*
+.idea/*
