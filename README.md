@@ -7,7 +7,7 @@ The main resources that I have followed are:
 
 - "Monte Carlo Methods and Importance Sampling'' by Eric C. Anderson, written for the course Stat578C at U.C. Berkeley. Here is the [link to the document](http://ib.berkeley.edu/labs/slatkin/eriq/classes/guest_lect/mc_lecture_notes.pdf).
 
-- "Particle Filters'' taught by Cyrill Stachniss for the course [Mobile Sensing and Robotics](https://youtube.com/playlist?list=PLgnQpQtFTOGQJXx-x0t23RmRbjp_yMb4v) at University of Bonn and [SLAM Course](https://youtube.com/playlist?list=PLgnQpQtFTOGQrZ4O5QzbIHgl3b1JHimN_) at the  University of Freiburg. 
+- "Particle Filters'' taught by Cyrill Stachniss for the course [Mobile Sensing and Robotics](https://youtube.com/playlist?list=PLgnQpQtFTOGQJXx-x0t23RmRbjp_yMb4v) at the University of Bonn and [SLAM Course](https://youtube.com/playlist?list=PLgnQpQtFTOGQrZ4O5QzbIHgl3b1JHimN_) at the  University of Freiburg. 
 
 - Chapter 4 - Non-parametric Filters, of the book Probabilistic Robotics by Sebastian Thrun, Wolfram Burgard and Dieter Fox.
 
@@ -25,3 +25,8 @@ for a discrete random variable, and,
 <img src="https://render.githubusercontent.com/render/math?math=E[X] = \int_{x \in \mathcal{A}} x p_X (x) dx">,
 
 for a continuous random variable.
+
+
+## Work in Progress. 
+This document is incomplete and will be expanded more. 
+The current work-around for writing math equations in GitHub Markdown was found from here: [A hack for showing LaTeX formulas in GitHub markdown.](https://gist.github.com/a-rodin/fef3f543412d6e1ec5b6cf55bf197d7b)
